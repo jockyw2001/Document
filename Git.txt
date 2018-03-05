@@ -1,0 +1,139 @@
+一、配置Git
+	1. 安装git:sudo apt-get install git
+	2. ssh-keygen -t rsa
+	3. cat .ssh/id_rsa.pub  
+	4. 将key添加到hcgit上，每换一个buildserver都要添加一次key
+		hcgit服务器，对应地址
+		http://hcgit.mstarsemi.com.tw:8080/
+		hcgit03服务器，对应地址
+		http://hcgit03.mstarsemi.com.tw:8080
+		hcgit04服务器，对应地址
+		http://hcgit04.mstarsemi.com.tw:9080
+		ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQC8z+sEvzQ76/jSW6JiNEM3eUqQFlNscqZhbzz5QlISiATy1AyW4x5zARmM0WHhe1zK3XuXDO1nSUKXN7cf5CtkSxJPx8dzJQM6NkKrPXcIg2ACPAm4stnwnVyiYa2zP6Kbd9JPDrjvehUxdto+tlM0HECNiI34+wpxcJW08uFCidsrbVdqEY5ZYZFRLFOaOzRvbn8kXcZgbM72Cmssl0qAZu5RrmxUtG7t3D9ZqXXzAdHDO8B4VSrpEqhGFU3pxaW+26MT2rGNPF8qJN7zOrV1WEzBi8knYEp4EtNMpPU1ztdo9stnS0ekkh4YQc8wc39vmvTsP6Vsmcg9jbdFlpup root@ubuntu
+	5. ssh -p 29418 hcgit(或29418 hcgit03/29518 hcgit04)  #test connection
+	6. git config --global user.email aaron.guo@mstarsemi.com
+	7. git config --global user.name "aaron.guo"
+
+二、下载code
+	参考《Clipper code path》、《k6(k6_lite) code path》
+	
+三、上传code
+git add .
+git diff --check
+git commit -m "xxxxx"  里面内容不能超过100个字符
+	注意一下commit 里面的内容，第一行是改动的标题
+	第二行必须是空行
+	第三行是修改的内容
+	ticket 可以填na，如果有，就填mantis 号
+	red flag 填n
+	如:
+	
+release libutopia.so to MI
+
+release libutopia.so from http://hcgit03:8080/#/c/71906
+
+[ticket] = mantis_0123456
+[red flag] = n
+
+git push origin HEAD:refs/for/master
+注:上传后，直接发送相应链接(如:http://hcgit03:8080/#/c/85460/ )给负责人review
+		
+四、repo
+	repo 打tag：
+	repo forall -c "git tag -a UTPA2-700.2.1.K6Lite -m "nvr_branch""
+	repo forall -c "git push origin UTPA2-700.2.1.K6Lite" 
+	//push tag 到server
+	repo forall -c "git tag -a Tag_name -m "Tag message""
+	repo forall -c "git push origin Tag_name" 
+
+
+GIT日常操作：
+
+1.下载代码
+	git clone http//xxxx.git –b dev xxxx_dev_local
+		1)  -b dev   指定想要下载的分支，去掉省略的话下载的是默认分支是master（注：默认分支可以修改）
+		2)  xxxx_dev_local是我想要在本地创建的git库文件夹名字，去掉省略的话下载好的git库名字是xxxx git库的名字，建议使用这种重命名方式
+ 
+2.更新代码
+	git pull –rebase
+		如果提示冲突，说明本地git库中未入库的提交中有修改和代码库中冲突了，修改冲突文件并删除冲突标识<<<<< ==== >>>>后:
+	git add 冲突文件名       //加入git index中
+	git rebase –continue    //继续更新到最新的base上
+
+3.修改、增加或删除代码文件到git index缓存中
+	1） 修改或新增加代码文件：
+		git add file_name
+	2） 删除代码文件：
+		git rm file_name
+ 
+4.提交本地git库index缓存中的修改
+	git commit –m “just a test for commit ”
+  
+5.推送提交到服务器上的git库中
+	git push
+		注：默认会推送到我们下载git库时的-b 后面加的那个分支，没有加默认是master，这个命令完整版实际上是:
+	git push origin 当前分支名:我们下载的分支名
+
+6.解消代码冲突
+	git merge xxxx_branch 或者 git pull 时 or
+	git rebase xxxx_branch 或者 git pull --rebase 时
+		解消方法也是修改冲突文件并删除冲突标识<<<<< ==== >>>：
+	git rebase –continue  //继续更新到最新的base上
+
+7、日志输出
+	1） 日志输出参数：
+		git log --oneline --graph
+		常用参数：
+		–-author=“Alex Kras” 只显示某个用户的提交任务
+		–-name-only 只显示变更文件的名称
+		–-oneline 将提交信息压缩到一行显示
+		–-graph 显示所有提交的依赖树
+		–-reverse 按照逆序显示提交记录（最先提交的在最前面）
+		–-after 显示某个日期之后发生的提交
+		–-before 显示发生某个日期之前的提交
+	2） 查看文件的详细变更
+		git log -p 或者 git log -p filename 不仅显示提交说明、提交者以及提交日期，还会显示这每次提交实际修改的内容。
+		然后你就可以使用 less 中常用的检索命令即“斜杠”后面加检索词/{{在此处添加你的检索词}}），
+		在变更内容日志中检索指定的关键词（使用小写的n跳到下一条检索结果，大写的N跳到上一条检索结果）。
+	3） 查看尚未合并的变更
+		git log --no-merges master..
+		注意--no-merges 标志意味着只显示没有合并到任何分支的变更，master..选项，意思是指显示没有合并到master分支的变更（在master后面必须有..）。
+		也可以运行 git show --no-merges master.. 或者 git log -p --no-merges master.. 命令（输出结果相同）来查看一下尚未合并的文件变更
+	4） 查看其它分支中的文件
+		git show some-branch:some-file.js
+		git diff some-branch some-filename.js
+		
+8、修复而非新建提交
+	如果本地修改不对或commit的LOG需要修改可以使用：
+	git commit –-amend //修复上一次提交，不要修改Merge提交
+				
+9、git撤销commit中单个文件的修改
+	$ git log <fileName>
+	$ git reset <commit-id> <fileName>
+	$ git checkout <fileName>
+	$ git commit --amend
+	$ git push origin <remoteBranch>
+	
+10、把已经提交的commit, 从一个分支放到另一个分支
+	git cherry-pick <commit id>
+	
+11、基于当前分支的某一次commit来创建分支
+	git branch <branch> <start point>
+	
+12、检出某一分支/commit的某文件
+	git checkout branch/commitid -- <paths>
+	
+13、使用git rebase合并多次commit
+	git rebase -i commitid
+	
+14、stash加一个message，用于记录版本
+	git stash save "test-cmd-stash"
+
+15、git比较差异
+	git diff    //查看尚未暂存的文件更新了哪些部分
+	git diff filename  //查看尚未暂存的某个文件更新了哪些
+	git diff –cached   //查看已经暂存起来的文件和上次提交的版本之间的差异
+	git diff –cached filename  //查看已经暂存起来的某个文件和上次提交的版本之间的差异
+	git diff ffd98b291e0caa6c33575c1ef465eae661ce40c9 b8e7b00c02b95b320f14b625663fdecf2d63e74c  //查看某两个版本之间的差异
+	git diff ffd98b291e0caa6c33575c1ef465eae661ce40c9:filename b8e7b00c02b95b320f14b625663fdecf2d63e74c:filename  //查看某两个版本的某个文件之间的差异
+	

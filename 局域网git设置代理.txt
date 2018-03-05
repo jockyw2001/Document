@@ -1,0 +1,63 @@
+
+在公司这样的局域网环境中，想要走网络必须走HTTP代理出去。不能直接访问外面的服务，所以这样安全了些，但是也提供了不便的地方。因此需要设置一些代理才能使用。
+
+常用的代理有：
+
+HTTP、HTTPS代理 许多程序支持http代理
+SOCKS代理 不是所有的程序都支持socks代理，但是常用的软件都支持
+github上的仓库支持ssh、https、git三种协议的chekout（clone）操作。
+
+一、生成SSH Key：
+
+要使用这种认证方式，我们需要先生成密钥对。一个私钥，这个放在我们的客户端机器上；公钥，这个可以放在我们想登录的服务器上。
+以openSSH来说明，目前大部分的Linux/unix都在使用这个程序。 默认情况下，openSSH的ssh-keygen使用的SSH2协议，并且生成RSA密钥对。
+user@ubuntu:~/.ssh$ ssh-keygen -C " this is comment "
+Generating public/private rsa key pair.
+Enter file in which to save the key (/home/user/.ssh/id_rsa):
+Enter passphrase (empty for no passphrase):
+Enter same passphrase again:
+Your identification has been saved in /home/user/.ssh/id_rsa.
+Your public key has been saved in /home/user/.ssh/id_rsa.pub.
+The key fingerprint is:
+ff:9e:ef:ad:4f:c6:e8:92:d0:6d:4e:ab:5d:9a:ad:66  this is comment
+The key's randomart image is:
++--[ RSA 2048]----+
+|                 |
+|                 |
+|                 |
+|                 |
+|        S  . .   |
+|         .. . +o |
+|          .. =..=|
+|           .o+EO |
+|           .=BX++|
++-----------------+
+使用ssh-keygen这个程序，就可以生成ssh的公钥和私钥了。参数-C代表注释，可以没有这个参数。
+第3行是询问将生成的密钥对存放在哪里，直接回车存放在默认的位置就可以了。
+第4行、第5行是让你输入口令短语，这个用于加密私钥的。如果你输入了，会使用它对私钥加密，这意味着你以后每次使用私钥，都要输入这个口令，用来解密私钥。无特殊要求下，这里留空。
+
+查看一下id_rsa：
+user@ubuntu:~/.ssh$ cat id_rsa
+查看公钥内容，注意它是在一行里面的：
+user@ubuntu:~/.ssh$ cat id_rsa.pub
+
+二、git使用http访问：
+
+github上可以使用https进行访问
+$ git config --global http.proxy http://web-proxy.oa.com:8080
+但是这样可以clone了。但是如果要push代码，那就麻烦了。每次都需要输入密码。
+
+三、git使用ssh进行访问
+
+使用ssh协议不仅可以访问github，还可以访问我们自己的git私有仓库
+配置ssh，编辑vim ~/.ssh/config ，将下面的内容写入到文件中
+Host github.com *.github.com
+    ProxyCommand connect -H web-proxy.oa.com:8080 %h %p   #设置代理
+    IdentityFile ~/.ssh/privatekey/id_rsa      # 这里是私钥，不要放成公钥啦
+    User git
+一定要注意IdentityFile这里要使用私钥，不能写错了，不然会让一直输入密码
+ProxyCommand说明了设置代理，其中connect是个程序，Windows用户下载了mysgit，里面有这个程序，Linux用户可能没有，需要安装sudo apt-get install connect-proxy。
+Centos系列可能yum install connect-proxy没有收录，需要自行下载http://rpm.pbone.net/index.php3?stat=3&search=connect-proxy&srodzaj=3
+测试：
+ssh -T git@github.com
+Hi username! You've successfully authenticated, but GitHub does not provide shell access.

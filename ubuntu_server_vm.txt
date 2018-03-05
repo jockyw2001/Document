@@ -1,0 +1,144 @@
+2 配置Ubuntu环境
+
+使用vi的时候如果无法使用删除键，要先设置 set nocompatible
+
+
+2.1 修改主机名
+sudo vim /etc/hostname
+sudo vim /etc/hosts
+
+
+2.2 配置apt-get工具
+备份，sudo cp /etc/apt/sources.list /etc/apt/sources.list_backup
+添加中国的source ，sudo vi /etc/apt/sources.list
+
+deb http://cn.archive.ubuntu.com/ubuntu/ xenial main restricted universe multiverse
+deb http://cn.archive.ubuntu.com/ubuntu/ xenial-security main restricted universe multiverse
+deb http://cn.archive.ubuntu.com/ubuntu/ xenial-updates main restricted universe multiverse
+deb http://cn.archive.ubuntu.com/ubuntu/ xenial-backports main restricted universe multiverse
+deb http://cn.archive.ubuntu.com/ubuntu/ xenial-proposed main restricted universe multiverse
+deb-src http://cn.archive.ubuntu.com/ubuntu/ xenial main restricted universe multiverse
+deb-src http://cn.archive.ubuntu.com/ubuntu/ xenial-security main restricted universe multiverse
+deb-src http://cn.archive.ubuntu.com/ubuntu/ xenial-updates main restricted universe multiverse
+deb-src http://cn.archive.ubuntu.com/ubuntu/ xenial-backports main restricted universe multiverse
+deb-src http://cn.archive.ubuntu.com/ubuntu/ xenial-proposed main restricted universe multiverse
+
+
+2.3 添加代理
+
+sudo vi /etc/apt/apt.conf
+
+Acquire::http::proxy "http://192.168.6.247:3128";
+
+
+2.3 系统时间设置
+
+修改时区
+sudo cp /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
+
+
+修改时间
+sudo date -s MM/DD/YY //修改日期
+sudo date -s hh:mm:ss //修改时间
+
+
+在修改时间以后，修改硬件CMOS的时间
+sudo hwclock --systohc
+
+
+2.4 安装必要的工具
+sudo apt-get install openssh-server
+下面就可以使用SecureCRT远程登录了
+
+sudo apt-get install vim git samba nfs-kernel-server dos2unix astyle gdb make xz-utils lib32z1-dev liblzo2-dev bc libncurses5-dev u-boot-tools
+
+// cus use
+sudo apt-get install squashfs-tools ctags
+sudo apt-get install gcc-multilib g++-multilib
+
+2.5 使用固定IP
+sudo vim /etc/network/interfaces
+
+auto lo
+iface lo inet loopback
+auto xxxxx
+iface xxxxx inet static
+address 172.21.17.220
+netmask 255.255.254.0
+gateway 172.21.16.254
+
+
+sudo vim /etc/resolvconf/resolv.conf.d/base
+
+nameserver 172.21.80.100
+nameserver 172.21.80.51
+search mstarsemi.com.tw
+
+
+
+2.6 配置Samba
+sudo smbpasswd -a 用户名
+
+sudo vim /etc/samba/smb.conf
+
+找到下面的几行，去掉注释
+[homes]
+   comment = Home Directories
+   browseable = yes
+   read only = no
+   create mask = 0755
+   directory mask = 0755
+   valid users = %S
+
+
+2.7 配置Profile
+sudo vi /etc/profile
+
+export http_proxy="http://192.168.6.247:3128"
+export PATH=/opt/arm-linux-gnueabihf-4.8.3-201404/bin:$PATH
+export ARCH=arm
+export CROSS_COMPILE=arm-linux-gnueabihf-
+
+2.8 配置NFS
+sudo vim /etc/exports
+
+/home *(rw,sync,no_root_squash,no_subtree_check)
+
+
+2.9 启用root用户
+sudo passwd root
+
+
+2.10 配置SSH
+允许root登录
+sudo vim /etc/ssh/sshd_config
+PermitRootLogin yes
+sudo service ssh restart
+
+
+2.11 添加新的账户
+
+sudo userdel -r 用户名 删除账户
+sudo useradd -m -s /bin/bash 用户名
+sudo passwd 用户名
+
+
+添加sudoers：
+sudo chmod +w /etc/sudoers
+sudo vim /etc/sudoers
+
+# See sudoers(5) for more information on "#include" directives:
+用户名=(ALL:ALL) ALL
+
+
+sudo smbpasswd -a 用户名
+
+sudo chsh -s /bin/sh (修改默认的sh)
+
+
+
+2.12 安装编译工具链
+将arm-linux-gnueabihf-4.8.3-201404.tar解压到/opt
+sudo tar xf arm-linux-gnueabihf-4.8.3-201404.tar
+
+
