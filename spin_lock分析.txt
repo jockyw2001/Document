@@ -1,0 +1,94 @@
+
+[内核同步]自旋锁spin_lock、spin_lock_irq 和 spin_lock_irqsave 分析
+
+自旋锁的初衷：在短期间内进行轻量级的锁定。一个被争用的自旋锁使得请求它的线程在等待锁重新可用的期间进行自旋(特别浪费处理器时间)，所以自旋锁不应该被持有时间过长。如果需要长时间锁定的话, 最好使用信号量。
+
+单处理器的自旋锁：
+
+	首先，自旋锁的目的如果在系统不支持内核抢占时，自旋锁的实现也是空的，因为单核只有一个线程在执行，不会有内核抢占，从而资源也不会被其他线程访问到。
+	其次，支持内核抢占，由于自旋锁是禁止抢占内核的，所以不会有其他的进程因为等待锁而自旋.
+	最后，只有在多cpu下，其他的cpu因为等待该cpu释放锁，而处于自旋状态，不停轮询锁的状态。所以这样的话，如果一旦自旋锁内代码执行时间较长，等待该锁的cpu会耗费大量资源，也是不同于信号量和互斥锁的地方。
+	简单来说，自旋锁在内核中主要用来防止多处理器中并发访问临界区，防止内核抢占造成的竞争。
+
+自旋锁内睡眠禁止睡眠问题：如果自旋锁锁住以后进入睡眠，而此时又不能进行处理器抢占(锁住会disable prempt)，其他进程无法获得cpu，这样也不能唤醒睡眠的自旋锁，因此不相应任何操作。
+
+自旋锁为什么广泛用于内核：自旋锁是一种轻量级的互斥锁，可以更高效的对互斥资源进行保护。自旋锁本来就只是一个很简单的同步机制,在SMP之前根本就没这个东西,一切都是Event之类的同步机制,
+		这类同步机制都有一个共性就是：一旦资源被占用都会产生任务切换,任务切换涉及很多东西的(保存原来的上下文,按调度算法选择新的任务,恢复新任务的上下文,还有就是要修改cr3寄存器会导致cache失效)
+		这些都是需要大量时间的,因此用Event之类来同步一旦涉及到阻塞代价是十分昂贵的，而自旋锁的效率就远高于互斥锁。
+
+
+在Linux内核中何时使用spin_lock，何时使用spin_lock_irqsave很容易混淆。首先看一下代码是如何实现的。
+spin_lock
+　　 spin_lock  ----->  raw_spin_lock 
+
+static inline void __raw_spin_lock(raw_spinlock_t *lock)  
+{  
+         preempt_disable();  
+         spin_acquire(&lock->dep_map, 0, 0, _RET_IP_);  
+         LOCK_CONTENDED(lock, do_raw_spin_trylock, do_raw_spin_lock);  
+}   
+1. 只禁止内核抢占，不会关闭本地中断
+2. 为何需要关闭内核抢占：假如进程A获得spin_lock->进程B抢占进程A->进程B尝试获取spin_lock->由于进程B优先级比进程A高，先于A运行，而进程B又需要A unlock才得以运行，这样死锁。所以这里需要关闭抢占。
+	这个原理RTOS的mutex/semaphore是否相同？
+　　a. 因为ThreadX的semaphore，假如进程B获取sema失败，会一直等待，直到A进程释放，不会死锁。 
+　　b. Mutex: mutex获取一旦失败，进程会进入sleep，直到其他进程释放；而spin_lock则不同，会一直轮训访问，且直到时间片耗完。
+
+spin_lock_irq
+    spin_lock_irq------> raw_spin_lock_irq
+	
+static inline void __raw_spin_lock_irq(raw_spinlock_t *lock)  
+{  
+         local_irq_disable();  
+         preempt_disable();  
+         spin_acquire(&lock->dep_map, 0, 0, _RET_IP_);  
+         LOCK_CONTENDED(lock, do_raw_spin_trylock, do_raw_spin_lock);  
+} 
+1. 禁止内核抢占，且关闭本地中断
+2. 那么在spin_lock中关闭了内核抢占，不关闭中断会出现什么情况呢？假如中断中也想获得这个锁，会出现和spin_lock中举得例子相同。
+	所以这个时候，在进程A获取lock之后，使用spin_lock_irq将中断禁止，就不会出现死锁的情况
+3. 在任何情况下使用spin_lock_irq都是安全的。因为它既禁止本地中断，又禁止内核抢占。
+4. spin_lock比spin_lock_irq速度快，但是它并不是任何情况下都是安全的。
+
+spin_lock_irqsave
+　　spin_lock_irqsave------>__raw_spin_lock_irqsave
+
+static inline unsigned long __raw_spin_lock_irqsave(raw_spinlock_t *lock)
+{
+      unsigned long flags;
+  
+     local_irq_save(flags);
+     preempt_disable();
+	 spin_acquire(&lock->dep_map, 0, 0, _RET_IP_);
+     /*
+      * On lockdep we dont want the hand-coded irq-enable of
+      * do_raw_spin_lock_flags() code, because lockdep assumes
+      * that interrupts are not re-enabled during lock-acquire:
+      */
+ #ifdef CONFIG_LOCKDEP
+     LOCK_CONTENDED(lock, do_raw_spin_trylock, do_raw_spin_lock);
+ #else
+     do_raw_spin_lock_flags(lock, &flags);
+ #endif
+     return flags;
+}
+1. 禁止内核抢占，关闭中断，保存中断状态寄存器的标志位
+2. spin_lock_irqsave在锁返回时，之前开的中断，之后也是开的；之前关，之后也是关。但是spin_lock_irq则不管之前的开还是关，返回时都是开的(?)。
+3. spin_lock_irq在自旋的时候，不会保存当前的中断标志寄存器，只会在自旋结束后，将之前的中断打开。
+
+
+1. spin_lock/spin_unlock:
+	进程A中调用了spin_lock（&lock）然后进入临界区，此时来了一个中断(interrupt），该中断也运行在和进程A相同的CPU上，并且在该中断处理程序中恰巧也会spin_lock(&lock)， 试图获取同一个锁。
+	由于是在同一个CPU上被中断，进程A会被设置为TASK_INTERRUPT状态，中断处理程序无法获得锁，会不停的忙等，由于进程A被设置为中断状态，schedule()进程调度就无法再调度进程A运行，这样就导致了死锁！
+	但是如果该中断处理程序运行在不同的CPU上就不会触发死锁。 因为在不同的CPU上出现中断不会导致进程A的状态被设为TASK_INTERRUPT，只是换出。当中断处理程序忙等被换出后，进程A还是有机会获得CPU，
+	执行并退出临界区。所以在使用spin_lock时要明确知道该锁不会在中断处理程序中使用。
+2. spin_lock_irq/spin_unlock_irq
+	spin_lock_irq----->raw_spin_lock_irq
+	spin_lock_irq 和 spin_unlock_irq, 如果你确定在获取锁之前本地中断是开启的，那么就不需要保存中断状态，解锁的时候直接将本地中断启用就可以啦
+3. spin_lock_irqsave/spin_unlock_irqrestore
+	使用spin_lock_irqsave在于你不期望在离开临界区后，改变中断的开启/关闭状态！进入临界区是关闭的，离开后它同样应该是关闭的！
+
+如果自旋锁在中断处理函数中被用到，那么在获取该锁之前需要关闭本地中断，spin_lock_irqsave 只是下列动作的一个便利接口：
+1 保存本地中断状态(这里的本地即当前的cpu的所有中断)
+2 关闭本地中断
+3 获取自旋锁
+解锁时通过 spin_unlock_irqrestore完成释放锁、恢复本地中断到之前的状态等工作
