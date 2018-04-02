@@ -50,7 +50,7 @@ sudo hwclock --systohc
 sudo apt-get install openssh-server
 下面就可以使用SecureCRT远程登录了
 
-sudo apt-get install vim git samba nfs-kernel-server dos2unix astyle gdb make xz-utils lib32z1-dev liblzo2-dev bc libncurses5-dev u-boot-tools
+sudo apt-get install vim git samba nfs-kernel-server dos2unix astyle gdb make xz-utils lib32z1 lib32z1-dev liblzo2-dev bc libncurses5-dev u-boot-tools libuuid1:i386
 
 // cus use
 sudo apt-get install squashfs-tools ctags
