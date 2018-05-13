@@ -5,56 +5,26 @@ filetype off " required
 " set the runtime path to include Vundle and initialize
 set rtp+=~/.vim/bundle/Vundle.vim
 
-"alternatively, pass a path where Vundle should install plugins
 "call vundle#begin('~/some/path/here')
 call vundle#begin()
 
-" The following are examples of different formats supported.
-" Keep Plugin commands between vundle#begin/end.
-
-" Git plugin not hosted on GitHub
-"Plugin 'git://git.wincent.com/command-t.git'
-" git repos on your local machine (i.e. when working on your own plugin)
-"Plugin 'file:///home/gmarik/path/to/plugin'
-" The sparkup vim script is in a subdirectory of this repo called vim.
-" Pass the path to set the runtimepath properly.
-"Plugin 'rstacruz/sparkup', {'rtp': 'vim/'}
-" Install L9 and avoid a Naming conflict if you've already installed a
-" different version somewhere else.
-"Plugin 'ascenator/L9', {'name': 'newL9'}
-" All of your Plugins must be added before the following line
-
+" let Vundle manage Vundle, required
 Plugin 'VundleVim/Vundle.vim'
-Plugin 'tpope/vim-fugitive'
-Plugin 'L9'
 Plugin 'scrooloose/nerdtree'
-Plugin 'vim-scripts/OmniCppComplete'
-Plugin 'vim-scripts/AutoComplPop'
 Plugin 'taglist.vim'
 Plugin 'winmanager'
-"Plugin 'ack.vim'
-"Plugin 'minibufexpl.vim'
+Plugin 'vim-scripts/OmniCppComplete'
+Plugin 'vim-scripts/AutoComplPop'
+Plugin 'vim-scripts/ack.vim'
+Plugin 'vim-scripts/ctrlp.vim'
+Plugin 'vim-scripts/cscope.vim'
 
 call vundle#end() " required
 filetype plugin indent on " required
-" To ignore plugin indent changes, instead use:
-"filetype plugin on
-"
-" Brief help
-" :PluginList - lists configured plugins
-" :PluginInstall - installs plugins; append `!` to update or just :PluginUpdate
-" :PluginSearch foo - searches for foo; append `!` to refresh local cache
-" :PluginClean - confirms removal of unused plugins; append `!` to auto-approve removal
-"
-" see :h vundle for more details or wiki for FAQ
-" Put your non-Plugin stuff after this line
+
+"============================ my plugins end=============================
 
 "=============== for vim =====================
-"set list lcs=tab:\¦\ " 显示对齐线 | ¦ ┆ │
-"hi cursorline cterm=none term=none
-"autocmd WinEnter * setlocal cursorline
-"autocmd WinLeave * setlocal nocursorline
-"highlight CursorLine guibg=#30F010 ctermbg=189
 syntax enable " 开启语法高亮
 syntax on
 set background=dark
@@ -76,8 +46,8 @@ set ignorecase " 搜索忽略大小写
 set nopaste " 切换到正常模式
 set cursorline
 set mouse=n
-
-"========== for quick key =============
+set foldmethod=syntax
+set foldlevel=100  " 启动vim时不要自动折叠代码
 nmap <F10> :set paste<cr> " 切换到粘贴模式
 nmap <F11> :set nopaste<cr>
 nmap <silent>nh :nohlsearch<cr> 
@@ -86,34 +56,38 @@ nmap <silent>mn :set number<cr>
 nmap <silent>cc :cclose<cr>
 nmap <silent>qq :qa<cr>
 nmap <silent>ww :w<cr>
-"let mapleader=","
-"nmap <silent> <leader>nm :set nonumber<cr>
-"nmap <silent> <leader>mn :set number<cr>
 
-"========== for NERDTree ==============
+"========== NERDTree ==============
 map nt :NERDTreeToggle<cr>
 let g:NERDTree_title="[NERDTree]"
 let NERDChristmasTree=1
 let NERDTreeAutoCenter=1
-"let NERDTreeWinPos="left"
 let NERDTreeShowBookmarks=0
 let NERDTreeMouseMode=1
-"let NERDTreeWinSize=25
 let NERDTreeShowHidden=1
 let g:NERDTreeDirArrowExpandable = '+'
 let g:NERDTreeDirArrowCollapsible = '-'
-"autocmd vimenter * NERDTree
-"wincmd w
-"autocmd VimEnter * wincmd w
-"autocmd StdinReadPre * let s:std_in=1
-"autocmd VimEnter * if argc() == 0 && !exists("s:std_in") | NERDTree | endif
-"autocmd bufenter * if (winnr("$") == 1 && exists("b:NERDTree") && b:NERDTree.isTabTree()) | q | endif
 function! NERDTree_Start()  
     exec 'NERDTree'  
 endfunction        
+
 function! NERDTree_IsValid()  
     return 1  
 endfunction  
+
+"============== TagList ====================
+let Tlist_Ctags_Cmd='/usr/bin/ctags'
+let Tlist_Exit_OnlyWindow=1
+let Tlist_Show_One_File=1
+let Tlist_Auto_Update=1
+
+"============= winmanager =================
+map wm :WMToggle<cr>
+let g:winManagerWindowLayout='NERDTree|TagList'
+let g:defaultExplorer = 0 
+let g:winManagerWidth = 25
+let g:bufExplorerMaxHeight=30
+let g:miniBufExplorerMoreThanOne=0
 
 "=========== omnicppcomplete ===============
 set completeopt=menu,menuone
@@ -135,42 +109,51 @@ highlight PmenuSel ctermfg=0 ctermbg=10 guibg=Yellow
 highlight PmenuSbar ctermbg=248 guibg=Grey
 highlight PmenuThumb ctermbg=15 guibg=White
 
-"============== TagList ====================
-"let Tlist_Auto_Open=1
-"let Tlist_Use_Right_Window=1
-map tl :TlistToggle<cr>
-let Tlist_Ctags_Cmd='/usr/local/bin/ctags'
-let Tlist_Exit_OnlyWindow=1
-let Tlist_WinWidth=25
-let Tlist_Show_One_File=1
-let Tlist_Auto_Update=1
+"============== cscope ====================
+let g:cscope_open_location = 1
+let g:cscope_auto_update = 0
 
-"============= minibufexpl ================
-"let g:miniBufExplMapWindowNavVim = 1   
-"let g:miniBufExplMapWindowNavArrows = 1   
-"let g:miniBufExplMapCTabSwitchBufs = 1   
-"let g:miniBufExplModSelTarget = 1  
-"let g:miniBufExplMoreThanOne=0
+nmap <silent> <F1> :call cscope#updateDB()<CR>
+nmap <silent> <F2> :call ToggleLocationList()<CR>
 
-"============= winmanager =================
-let g:winManagerWindowLayout='NERDTree|TagList'
-map wm :WMToggle<cr>
-"let g:winManagerWindowLayout='FileExplorer|TagList'
-let g:defaultExplorer = 0 
-let g:winManagerWidth = 25
-let g:bufExplorerMaxHeight=15
-let g:miniBufExplorerMoreThanOne=0
+" g: Find this definition
+nmap <silent> <F3> :call cscope#find('g', expand('<cword>'))<CR>
+" c: Find functions calling this function
+nmap <silent> <F4> :call cscope#find('c', expand('<cword>'))<CR>
+" s: Find this C symbol
+nmap <silent> <F5> :call cscope#find('s', expand('<cword>'))<CR>
+" t: Find this text string
+nmap <silent> <F6> :call cscope#find('t', expand('<cword>'))<CR>
+" f: Find this file
+nmap <silent> <F7> :call cscope#find('f', expand('<cword>'))<CR>
+" i: Find files #including this file
+nmap <silent> <F8> :call cscope#find('i', expand('<cword>'))<CR>
 
-"============== Ctags =====================
-"map <F5> :!ctags -R --c++-kinds=+p --fields=+iaS --extra=+q .<CR>
-set tags=tags;
-set tags+=./tags;
-map <F5> :!ctags -R --c++-kinds=+p --fields=+iaS --extra=+q .<CR><CR> :TlistUpdate<CR>
-imap <F5> <ESC>:!ctags -R --c++-kinds=+p --fields=+iaS --extra=+q .<CR><CR> :TlistUpdate<CR>
-nmap <C-]> g]
+"============== ack =======================
+if executable('ag')
+    let g:ackprg = 'ag --vimgrep'
+endif
+let g:ackhighlight = 1
+let g:ack_qhandler = "botright copen 15"
+let g:ack_autoclose = 1
+let g:ack_use_cword_for_empty_search = 1
+let g:ack_use_dispatch = 1
 
-"============== Ack ======================= 
-map <F4> :Ack<Space>
+"============== ctrlp =====================
+if executable('ag')
+    set grepprg=ag\ --nogroup\ --nocolor
+    let g:ctrlp_user_command = 'ag %s -l --nocolor --hidden -g ""'
+    let g:ctrlp_use_caching = 1
+endif
+let g:ctrlp_custom_ignore = '\v[\/]\.(git|hg|svn)$'
+let g:ctrlp_working_path_mode = 0
+let g:ctrlp_match_window_bottom = 1
+let g:ctrlp_max_height = 5
+let g:ctrlp_match_window_reversed = 0
+let g:ctrlp_mruf_max = 100
+let g:ctrlp_follow_symlinks = 1
+let g:ctrlp_by_filename = 1
+let g:ctrlp_regexp = 0
 
 "============== vim mergetool =============
 map <silent> m1 :diffget 1<CR> :diffupdate<CR>
