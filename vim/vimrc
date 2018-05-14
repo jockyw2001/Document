@@ -46,6 +46,7 @@ set ignorecase " 搜索忽略大小写
 set nopaste " 切换到正常模式
 set cursorline
 set mouse=n
+autocmd FileType * setlocal formatoptions-=c formatoptions-=r formatoptions-=o
 set foldmethod=syntax
 set foldlevel=100  " 启动vim时不要自动折叠代码
 nmap <F10> :set paste<cr> " 切换到粘贴模式
@@ -56,6 +57,10 @@ nmap <silent>mn :set number<cr>
 nmap <silent>cc :cclose<cr>
 nmap <silent>qq :qa<cr>
 nmap <silent>ww :w<cr>
+nnoremap <C-h> <C-w>h
+nnoremap <C-j> <C-w>j
+nnoremap <C-k> <C-w>k
+nnoremap <C-l> <C-w>l
 
 "========== NERDTree ==============
 map nt :NERDTreeToggle<cr>
