@@ -9,15 +9,15 @@ set rtp+=~/.vim/bundle/Vundle.vim
 call vundle#begin()
 
 " let Vundle manage Vundle, required
-Plugin 'VundleVim/Vundle.vim'
-Plugin 'scrooloose/nerdtree'
-Plugin 'taglist.vim'
-Plugin 'winmanager'
-Plugin 'vim-scripts/OmniCppComplete'
-Plugin 'vim-scripts/AutoComplPop'
-Plugin 'vim-scripts/ack.vim'
-Plugin 'vim-scripts/ctrlp.vim'
-Plugin 'vim-scripts/cscope.vim'
+Plugin 'wenshuai-xi/Vundle.vim'
+Plugin 'wenshuai-xi/nerdtree.vim'
+Plugin 'wenshuai-xi/taglist.vim'
+Plugin 'wenshuai-xi/winmanager.vim'
+Plugin 'wenshuai-xi/OmniCppComplete.vim'
+Plugin 'wenshuai-xi/AutoComplPop.vim'
+Plugin 'wenshuai-xi/ack.vim'
+Plugin 'wenshuai-xi/ctrlp.vim'
+Plugin 'wenshuai-xi/cscope.vim'
 
 call vundle#end() " required
 filetype plugin indent on " required
@@ -81,7 +81,7 @@ function! NERDTree_IsValid()
 endfunction  
 
 "============== TagList ====================
-let Tlist_Ctags_Cmd='/usr/bin/ctags'
+let Tlist_Ctags_Cmd='/usr/local/bin/ctags'
 let Tlist_Exit_OnlyWindow=1
 let Tlist_Show_One_File=1
 let Tlist_Auto_Update=1
@@ -118,21 +118,21 @@ highlight PmenuThumb ctermbg=15 guibg=White
 let g:cscope_open_location = 1
 let g:cscope_auto_update = 0
 
-nmap <silent> <F1> :call cscope#updateDB()<CR>
+nmap <silent> <F1> :call CscopeUpdateDB()<CR>
 nmap <silent> <F2> :call ToggleLocationList()<CR>
 
 " g: Find this definition
-nmap <silent> <F3> :call cscope#find('g', expand('<cword>'))<CR>
+nmap <silent> <F3> :call CscopeFind('g', expand('<cword>'))<CR>
 " c: Find functions calling this function
-nmap <silent> <F4> :call cscope#find('c', expand('<cword>'))<CR>
+nmap <silent> <F4> :call CscopeFind('c', expand('<cword>'))<CR>
 " s: Find this C symbol
-nmap <silent> <F5> :call cscope#find('s', expand('<cword>'))<CR>
+nmap <silent> <F5> :call CscopeFind('s', expand('<cword>'))<CR>
 " t: Find this text string
-nmap <silent> <F6> :call cscope#find('t', expand('<cword>'))<CR>
+nmap <silent> <F6> :call CscopeFind('t', expand('<cword>'))<CR>
 " f: Find this file
-nmap <silent> <F7> :call cscope#find('f', expand('<cword>'))<CR>
+nmap <silent> <F7> :call CscopeFind('f', expand('<cword>'))<CR>
 " i: Find files #including this file
-nmap <silent> <F8> :call cscope#find('i', expand('<cword>'))<CR>
+nmap <silent> <F8> :call CscopeFind('i', expand('<cword>'))<CR>
 
 "============== ack =======================
 if executable('ag')
@@ -158,7 +158,7 @@ let g:ctrlp_match_window_reversed = 0
 let g:ctrlp_mruf_max = 100
 let g:ctrlp_follow_symlinks = 1
 let g:ctrlp_by_filename = 1
-let g:ctrlp_regexp = 0
+let g:ctrlp_regexp = 1
 
 "============== vim mergetool =============
 map <silent> m1 :diffget 1<CR> :diffupdate<CR>
