@@ -135,6 +135,9 @@ sudo smbpasswd -a 用户名
 
 sudo chsh -s /bin/sh (修改默认的sh)
 
+//时区选择
+tzselect
+TZ='Asia/Shanghai'; export TZ
 
 
 2.12 安装编译工具链
