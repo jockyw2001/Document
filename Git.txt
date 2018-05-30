@@ -39,6 +39,10 @@ git push origin HEAD:refs/for/master
 注:上传后，直接发送相应链接(如:http://hcgit03:8080/#/c/85460/ )给负责人review
 		
 四、repo
+	配置：
+		1、git clone https://gerrit.googlesource.com/git-repo
+		2、cp git-repo/repo  /usr/bin/repo
+		3、cp git-repo ~/.repo/repo -rf
 	repo 打tag：
 	repo forall -c "git tag -a UTPA2-700.2.1.K6Lite -m "nvr_branch""
 	repo forall -c "git push origin UTPA2-700.2.1.K6Lite" 
