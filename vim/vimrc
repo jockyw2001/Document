@@ -16,7 +16,7 @@ Plugin 'wenshuai-xi/winmanager.vim'
 Plugin 'wenshuai-xi/OmniCppComplete.vim'
 Plugin 'wenshuai-xi/AutoComplPop.vim'
 Plugin 'wenshuai-xi/ack.vim'
-Plugin 'wenshuai-xi/ctrlp.vim'
+Plugin 'wenshuai-xi/LeaderF.vim'
 Plugin 'wenshuai-xi/cscope.vim'
 
 call vundle#end() " required
@@ -144,21 +144,10 @@ let g:ack_autoclose = 1
 let g:ack_use_cword_for_empty_search = 1
 let g:ack_use_dispatch = 1
 
-"============== ctrlp =====================
-if executable('ag')
-    set grepprg=ag\ --nogroup\ --nocolor
-    let g:ctrlp_user_command = 'ag %s -l --nocolor --hidden -g ""'
-    let g:ctrlp_use_caching = 1
-endif
-let g:ctrlp_custom_ignore = '\v[\/]\.(git|hg|svn)$'
-let g:ctrlp_working_path_mode = 0
-let g:ctrlp_match_window_bottom = 1
-let g:ctrlp_max_height = 5
-let g:ctrlp_match_window_reversed = 0
-let g:ctrlp_mruf_max = 100
-let g:ctrlp_follow_symlinks = 1
-let g:ctrlp_by_filename = 1
-let g:ctrlp_regexp = 1
+"============== LeaderF =====================
+nmap <silent> <C-p> :LeaderfFile<CR>
+nmap <silent> <C-b> :LeaderfBufTagAll<CR>
+nmap <silent> <C-f> :LeaderfFunctionAll<CR>
 
 "============== vim mergetool =============
 map <silent> m1 :diffget 1<CR> :diffupdate<CR>
