@@ -29,16 +29,16 @@ syntax enable " 开启语法高亮
 syntax on
 set background=dark
 set t_Co=256 " 开启256色显示
-set scrolloff=3 " 滚动时保持边距5行
+set scrolloff=3 " 滚动时保持边距3行
 set number " 开启行号显示
 set cmdheight=1
-set nocompatible
 set confirm " 在处理未保存或只读文件的时候，弹出确认
 set autoindent    " 自动缩进
 set tabstop=4    " Tab键的宽度
 set expandtab " 展开tab为空格
 set softtabstop=4    " 统一缩进为4
 set shiftwidth=4
+set backspace=2 "设置退格键可用
 set hlsearch " 高亮搜索
 set laststatus=2 " 始终显示状态栏
 set encoding=utf-8 " 
@@ -46,9 +46,15 @@ set ignorecase " 搜索忽略大小写
 set nopaste " 切换到正常模式
 set cursorline
 set mouse=n
+set selection=exclusive
+set selectmode=mouse,key
 autocmd FileType * setlocal formatoptions-=c formatoptions-=r formatoptions-=o
 set foldmethod=syntax
 set foldlevel=100  " 启动vim时不要自动折叠代码
+set autoread "设置当文件被改动时自动载入
+set autowrite "自动保存
+set nobackup "从不备份
+set noswapfile "禁止生成临时文件
 nmap <F10> :set paste<cr> " 切换到粘贴模式
 nmap <F11> :set nopaste<cr>
 nmap <silent>nh :nohlsearch<cr> 
@@ -81,7 +87,7 @@ function! NERDTree_IsValid()
 endfunction  
 
 "============== TagList ====================
-let Tlist_Ctags_Cmd='/usr/local/bin/ctags'
+let Tlist_Ctags_Cmd='/usr/bin/ctags'
 let Tlist_Exit_OnlyWindow=1
 let Tlist_Show_One_File=1
 let Tlist_Auto_Update=1
@@ -120,19 +126,12 @@ let g:cscope_auto_update = 0
 
 nmap <silent> <F1> :call CscopeUpdateDB()<CR>
 nmap <silent> <F2> :call ToggleLocationList()<CR>
-
-" g: Find this definition
-nmap <silent> <F3> :call CscopeFind('g', expand('<cword>'))<CR>
-" c: Find functions calling this function
-nmap <silent> <F4> :call CscopeFind('c', expand('<cword>'))<CR>
-" s: Find this C symbol
-nmap <silent> <F5> :call CscopeFind('s', expand('<cword>'))<CR>
-" t: Find this text string
-nmap <silent> <F6> :call CscopeFind('t', expand('<cword>'))<CR>
-" f: Find this file
-nmap <silent> <F7> :call CscopeFind('f', expand('<cword>'))<CR>
-" i: Find files #including this file
-nmap <silent> <F8> :call CscopeFind('i', expand('<cword>'))<CR>
+nmap <silent> <F3> :call CscopeFind('g', expand('<cword>'))<CR>    " g: Find this definition
+nmap <silent> <F4> :call CscopeFind('c', expand('<cword>'))<CR>    " c: Find functions calling this function
+nmap <silent> <F5> :call CscopeFind('s', expand('<cword>'))<CR>    " s: Find this C symbol
+nmap <silent> <F6> :call CscopeFind('t', expand('<cword>'))<CR>    " t: Find this text string
+nmap <silent> <F7> :call CscopeFind('f', expand('<cword>'))<CR>    " f: Find this file
+nmap <silent> <F8> :call CscopeFind('i', expand('<cword>'))<CR>    " i: Find files #including this file
 
 "============== ack =======================
 if executable('ag')
@@ -145,6 +144,7 @@ let g:ack_use_cword_for_empty_search = 1
 let g:ack_use_dispatch = 1
 
 "============== LeaderF =====================
+let g:Lf_WindowHeight = 0.20
 nmap <silent> <C-p> :LeaderfFile<CR>
 nmap <silent> <C-b> :LeaderfBufTagAll<CR>
 nmap <silent> <C-f> :LeaderfFunctionAll<CR>
