@@ -87,7 +87,7 @@ function! NERDTree_IsValid()
 endfunction  
 
 "============== TagList ====================
-let Tlist_Ctags_Cmd='/usr/bin/ctags'
+let Tlist_Ctags_Cmd='/usr/local/bin/ctags'
 let Tlist_Exit_OnlyWindow=1
 let Tlist_Show_One_File=1
 let Tlist_Auto_Update=1
@@ -96,7 +96,7 @@ let Tlist_Auto_Update=1
 map wm :WMToggle<cr>
 let g:winManagerWindowLayout='NERDTree|TagList'
 let g:defaultExplorer = 0 
-let g:winManagerWidth = 25
+let g:winManagerWidth = 30
 let g:bufExplorerMaxHeight=30
 let g:miniBufExplorerMoreThanOne=0
 
@@ -146,8 +146,8 @@ let g:ack_use_dispatch = 1
 "============== LeaderF =====================
 let g:Lf_WindowHeight = 0.20
 nmap <silent> <C-p> :LeaderfFile<CR>
-nmap <silent> <C-b> :LeaderfBufTagAll<CR>
-nmap <silent> <C-f> :LeaderfFunctionAll<CR>
+nmap <silent> <C-b> :LeaderfBufTag<CR>
+nmap <silent> <C-f> :LeaderfFunction<CR>
 
 "============== vim mergetool =============
 map <silent> m1 :diffget 1<CR> :diffupdate<CR>
