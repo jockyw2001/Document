@@ -15,6 +15,7 @@ Plugin 'wenshuai-xi/Vundle.vim'
 Plugin 'wenshuai-xi/nerdtree.vim'
 Plugin 'wenshuai-xi/taglist.vim'
 Plugin 'wenshuai-xi/indentLine.vim'
+Plugin 'wenshuai-xi/minibufexpl.vim'
 Plugin 'wenshuai-xi/winmanager.vim'
 Plugin 'wenshuai-xi/YouCompleteMe.vim'
 Plugin 'wenshuai-xi/ack.vim'
@@ -89,7 +90,7 @@ function! NERDTree_IsValid()
 endfunction  
 
 "============== TagList ====================
-let Tlist_Ctags_Cmd='/usr/bin/ctags'
+let Tlist_Ctags_Cmd='/usr/local/bin/ctags'
 let Tlist_Exit_OnlyWindow=1
 let Tlist_Show_One_File=1
 let Tlist_Auto_Update=1
@@ -97,7 +98,17 @@ let Tlist_Auto_Update=1
 "============== indentLine ================
 let g:indentLine_char = '¦' 
 let g:indentLine_showFirstIndentLevel = 1 
-let g:indentLine_color_term = 239 
+let g:indentLine_color_term = 125 
+
+"============== miniBufexplorer ===============
+nmap <silent> <F1> :MBEToggle<CR>
+let g:miniBufExplorerAutoStart = 0
+let g:miniBufExplVSplit = 20 
+let g:miniBufExplMaxSize = 20
+let g:miniBufExplBRSplit = 1
+let g:miniBufExplUseSingleClick = 1
+let g:miniBufExplShowBufNumbers = 0
+let g:miniBufExplCloseOnSelect = 1
 
 "============= winmanager =================
 map wm :WMToggle<cr>
@@ -154,7 +165,7 @@ let g:syntastic_cpp_remove_include_errors = 1
 let g:cscope_open_location = 1
 let g:cscope_auto_update = 0
 
-nmap <silent> <F1> :call CscopeUpdateDB()<CR>
+nmap <silent> <F12> :call CscopeUpdateDB()<CR>
 nmap <silent> <F2> :call ToggleLocationList()<CR>
 nmap <silent> <F3> :call CscopeFind('g', expand('<cword>'))<CR>    " g: Find this definition
 nmap <silent> <F4> :call CscopeFind('c', expand('<cword>'))<CR>    " c: Find functions calling this function
