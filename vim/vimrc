@@ -86,7 +86,7 @@ let g:NERDTree_title = "[NERDTree]"
 let NERDChristmasTree = 1
 let NERDTreeAutoCenter = 1
 let NERDTreeShowBookmarks = 0
-let NERDTreeMouseMode = 3
+let NERDTreeMouseMode = 3 
 let NERDTreeShowHidden = 1
 let NERDTreeMinimalUI = 1
 let NERDTreeWinSize = 20
@@ -98,7 +98,7 @@ let g:NERDTreeDirArrowCollapsible = '-'
 "============== TagList ====================
 "let Tlist_Auto_Open = 1
 map tl :TlistToggle<cr>
-let Tlist_Ctags_Cmd='/usr/bin/ctags'
+let Tlist_Ctags_Cmd='/usr/local/bin/ctags'
 let Tlist_Close_On_Select = 1
 let Tlist_Use_SingleClick = 0 
 let TlistHighlightTag = 1
@@ -165,6 +165,8 @@ let g:ack_use_dispatch = 1
 
 "============== LeaderF =====================
 let g:Lf_WindowHeight = 0.20
+let g:Lf_ShowHidden = 1
+let g:Lf_UseVersionControlTool = 0
 nmap <silent> <C-p> :LeaderfFile<CR>
 nmap <silent> <C-b> :LeaderfBufTag<CR>
 nmap <silent> <C-f> :LeaderfFunction<CR>
