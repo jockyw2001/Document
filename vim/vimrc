@@ -165,8 +165,13 @@ let g:ack_use_dispatch = 1
 
 "============== LeaderF =====================
 let g:Lf_WindowHeight = 0.20
-let g:Lf_ShowHidden = 1
+let g:Lf_ShowHidden = 0 
 let g:Lf_UseVersionControlTool = 0
+let g:Lf_WildIgnore = {
+            \ 'dir': ['.svn','.git','.hg'],
+            \ 'file': ['*.sw?','~$*','*.bak','*.exe','*.o','*.*.o','*.so','*.py[co]',
+            \           '.git*','*.*cmd','.mod*','*.a','*.bin','*.dat','*.ko','.*.o.cmd']
+            \}
 nmap <silent> <C-p> :LeaderfFile<CR>
 nmap <silent> <C-b> :LeaderfBufTag<CR>
 nmap <silent> <C-f> :LeaderfFunction<CR>
